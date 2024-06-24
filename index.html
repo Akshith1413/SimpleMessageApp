@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #chat-section {
+        position: relative;top: 0;left: 0;width: 100%;height: 100%;background: #fff;display: flex;justify-content: center;align-items: center;overflow: hidden;
+   flex-direction: column; }
+    #chat-section.hidden{
+        display: none;
+    }
+    #container {
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+    #chat-box {position: relative;top: 0;left: 0;background: #f6f6f6;
+      border: 1px solid #ccc;box-shadow: 0 0 20px #f1f1f1;
+      padding: 10px;
+      height: 400px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    #message-input {
+      width: calc(100% - 22px);
+      padding: 10px;
+    }
+    .secondsend {border-radius: 15px;
+        position: relative;margin: 10px;background-color: #000;color: #fff;border: none;
+    }
+    .secondsend:hover {
+        background: #fff;color: #000;border: 2px solid #000;border-radius: 15px;
+    }
+    .thirdsend {
+        border-radius: 15px;
+        position: relative;margin: 10px;background-color: #000;color: #fff;border: none;
+    
+    }
+    .thirdsend:hover {
+        background: #fff;color: #000;border: 2px solid #000;border-radius: 15px;
+    }
+    .hidden {
+      display: none;
+    }
+    #chat-section input[type=text]{width: 200px;
+        background: #fff;border-bottom: 2px solid #000;border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <!-- Registration Section -->
+    <div id="register-section">
+      <h2>Register</h2>
+      <input type="text" id="register-username" placeholder="Username" required>
+      <input type="password" id="register-password" placeholder="Password" required>
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="hidden">
+      <h2>Login</h2>
+      <input type="text" id="login-username" placeholder="Username" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat-section" class="hidden">
+      <h2>Chat Room</h2>
+      <div id="chat-box"></div>
+      <input type="text" id="message-input" placeholder="Type a message" required>
+      <button onclick="sendMessage()" class="secondsend">Send</button>
+      <button onclick="logout()" class="thirdsend">Logout</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let token = '';
+
+    function showRegister() {
+      document.getElementById('register-section').classList.remove('hidden');
+      document.getElementById('login-section').classList.add('hidden');
+    }
+
+    function showLogin() {
+      document.getElementById('register-section').classList.add('hidden');
+      document.getElementById('login-section').classList.remove('hidden');
+    }
+
+    function showChat() {
+      document.getElementById('register-section').classList.add('hidden');
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('chat-section').classList.remove('hidden');
+      loadMessages();
+    }
+
+    function register() {
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+
+      fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.auth) {
+          token = data.token;
+          showChat();
+        } else {
+          alert('Registration failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during registration');
+      });
+    }
+
+    function login() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.auth) {
+          token = data.token;
+          showChat();
+        } else {
+          alert('Login failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during login');
+      });
+    }
+
+    function loadMessages() {
+      fetch('/api/messages', {
+        method: 'GET',
+        headers: { 'x-access-token': token }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML = '';
+        data.forEach(msg => {
+          const messageElement = document.createElement('div');
+          messageElement.textContent = `${msg.username}: ${msg.message} (${msg.timestamp})`;
+          chatBox.appendChild(messageElement);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while loading messages');
+      });
+    }
+
+    function sendMessage() {
+      const message = document.getElementById('message-input').value;
+
+      fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        },
+        body: JSON.stringify({ message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        socket.emit('message', data);
+        document.getElementById('message-input').value = '';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while sending the message');
+      });
+    }
+
+    socket.on('message', (message) => {
+      const chatBox = document.getElementById('chat-box');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `User: ${message.message} (${message.timestamp})`;
+      chatBox.appendChild(messageElement);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    function logout() {
+      token = '';
+      document.getElementById('chat-section').classList.add('hidden');
+      showLogin();
+    }
+  </script>
+</body>
+</html>
