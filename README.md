@@ -6,7 +6,7 @@ A simple message app
 1. Open the terminal in the project and type the following Commands
 
    npm init
-   #skip the unneceesary by pressing the button 'enter'
+   //skip the unneceesary by pressing the button 'enter'
    npm install express bcryptjs body-parser cors jsonwebtoken socket.io socket.io-client sqlite3
    npm start
    
