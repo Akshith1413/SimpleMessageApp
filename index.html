@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat App</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playwrite+NG+Modern:wght@100..400&display=swap');
     body {
       font-family: Arial, sans-serif;
       display: flex;
@@ -21,7 +22,7 @@
         display: none;
     }
     #container {
-      width: 300px;
+      width: 400px;
       text-align: center;
     }
     input {
@@ -65,26 +66,72 @@
     #chat-section input[type=text]{width: 200px;
         background: #fff;border-bottom: 2px solid #000;border-radius: 10px;
     }
+    .slidetext {
+        position: absolute;
+        top: 0;
+        left: 10%;
+        width: 10%;
+        height: 100%;writing-mode:vertical-lr;
+        background: #000;
+        display: flex;color:#fff;align-items: center;
+        justify-content:center;overflow: hidden;
+    }
+    .slidetext h1 {
+        font-size: 3.3em;   font-family: cursive;
+        animation: spin_words 15s infinite;
+    }
+    @keyframes spin_words {
+        0%, 33% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        33%, 46% {
+            opacity: 0.5;
+            transform: translateY(-200%);
+        }
+        65%, 100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .pink {width: 200px;
+        margin: 10px;background:#fff;
+    }
+.pink:hover {
+    background: #000;color: #fff;
+}
+.green {
+margin: 30px; font-family: "Playwrite NG Modern", cursive;font-size: 3em;
+}
+.yellow {
+    background: #fff;border: none;border-bottom: 1px solid #000;margin: 10px;margin-bottom: 40px;
+}
+.orange {text-decoration: none;color:#000;font-size:18px;padding: 10px;border-radius: 10px;
+}
+.orange:hover
+{
+    background: #000;color: #fff;
+}
   </style>
 </head>
 <body>
   <div id="container">
     <!-- Registration Section -->
     <div id="register-section">
-      <h2>Register</h2>
-      <input type="text" id="register-username" placeholder="Username" required>
-      <input type="password" id="register-password" placeholder="Password" required>
-      <button onclick="register()">Register</button>
-      <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+      <h2 class="green">Register</h2>
+      <input type="text" id="register-username" placeholder="Username" required class="yellow">
+      <input type="password" id="register-password" placeholder="Password" required class="yellow">
+      <button onclick="register()" style="border-radius:15px;border:1px solid #000;margin-bottom:30px;" class="pink">Register</button>
+      <p>Already have an account?&nbsp;&nbsp; <a href="#" onclick="showLogin()" class="orange">Login here</a></p>
     </div>
 
     <!-- Login Section -->
     <div id="login-section" class="hidden">
-      <h2>Login</h2>
-      <input type="text" id="login-username" placeholder="Username" required>
-      <input type="password" id="login-password" placeholder="Password" required>
-      <button onclick="login()">Login</button>
-      <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+      <h2 class="green">Login</h2>
+      <input type="text" id="login-username" placeholder="Username" required class="yellow">
+      <input type="password" id="login-password" placeholder="Password" required class="yellow">
+      <button onclick="login()" style="border-radius:15px;border:1px solid #000;margin-bottom:30px;" class="pink">Login</button>
+      <p>Don't have an account?&nbsp;&nbsp;  <a href="#" onclick="showRegister()" class="orange">Register here</a></p>
     </div>
 
     <!-- Chat Section -->
@@ -92,11 +139,13 @@
       <h2>Chat Room</h2>
       <div id="chat-box"></div>
       <input type="text" id="message-input" placeholder="Type a message" required>
-      <button onclick="sendMessage()" class="secondsend">Send</button>
+      <button onclick="sendMessage()" class="secondsend" style="margin: 15px;width:250px;">Send</button>
       <button onclick="logout()" class="thirdsend">Logout</button>
     </div>
   </div>
-
+<div class="slidetext">
+  <h1>Made by <span>Akshith</span></h1>
+</div>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
