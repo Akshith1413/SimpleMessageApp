@@ -1,7 +1,7 @@
 # SimpleMessageApp
 A simple message app
 
-# Steps to run the app
+## Steps to run the app
 
 1. Open the terminal in the project and type the following Commands
    
